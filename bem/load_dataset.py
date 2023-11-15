@@ -23,6 +23,7 @@ def jupiter_to_earth(dataset, feature):
     return dataset
 
 
+# TODO: Potential bugs
 def add_temp_eq_dataset(dataset):
     semi_major_axis = dataset.semi_major_axis * AU.to('solRad')
     teq_planet = [ae.plant_tem(teff, a / rad, ecc)
@@ -47,7 +48,7 @@ def add_star_luminosity_dataset(dataset):
     return dataset
 
 
-# TODO: don't understand
+# TODO: PHYS
 def add_temp_eq_error_dataset(dataset):
     semi_major_axis = dataset.semi_major_axis * AU.to('solRad')
     semi_major_axis_error = dataset.semi_major_axis_error * AU.to('solRad')
@@ -66,7 +67,7 @@ def add_temp_eq_error_dataset(dataset):
     return dataset
 
 
-# TODO: dont understand
+# TODO: PHYS
 def add_star_luminosity_error_dataset(dataset):
     """Compute the stellar luminosity
     L_star/L_sun = (R_star/R_sun)**2 * (Teff_star / Teff_sun)**4
@@ -87,11 +88,17 @@ def add_star_luminosity_error_dataset(dataset):
 
 
 def load_dataset(exo_path, solar_path, features, solar=True):
+    """
+    param: exo_path: exoplanet data file path
+    param: solar_path: solar planet data file path
+    param: features: ['mass', 'semi_major_axis','eccentricity', 'star_metallicity',
+                        'star_radius', 'star_teff','star_mass', 'radius']
+    """
     # load exoplanets 
     dataset_exo = pd.read_csv(exo_path, index_col=0)
     dataset_exo = dataset_exo[features]
-    # Removes the planets with NaN values,
 
+    # Removes the planets with NaN values,
     dataset_exo = dataset_exo.dropna(axis=0, how='any')
 
     # load solar planets
@@ -119,7 +126,14 @@ def load_dataset(exo_path, solar_path, features, solar=True):
     return dataset
 
 
-def load_dataset_error(exo_path, features, solar_path, solar=True):
+def load_dataset_error(exo_path, solar_path, features,  solar=True):
+    """
+    param: exo_path: exoplanet data file path
+    param: solar_path: solar planet data file path
+    param: features: ['mass', 'semi_major_axis','eccentricity',
+                        'star_radius', 'star_teff','star_mass', 'radius'],
+                        Note: here is diff with load_dataset, no star_metallicity
+    """
     mass_and_radii_features = ['mass', 'mass_error_max', 'mass_error_min',
                                'radius', 'radius_error_max', 'radius_error_min']
     features_error_range_list = [f for feature in features for f in (feature,
@@ -130,7 +144,7 @@ def load_dataset_error(exo_path, features, solar_path, solar=True):
                                 features}
     features_error_list = [f for feature in features for
                            f in (feature, f"{feature}_error")]
-    features_error_dir = {feature: [f"{feature}_error_min"] for
+    features_error_dir = {feature: [f"{feature}_error"] for
                           feature in features}
 
     # load exoplanets 
@@ -140,7 +154,8 @@ def load_dataset_error(exo_path, features, solar_path, solar=True):
     # replace inf
     dataset_exo = dataset_exo.replace([np.inf, -np.inf], np.nan)
 
-    # TODO: Don't understand, replace Nan by a value???
+    # TODO: PHYS, replace Nan by a value???
+    # TODO: PHYS, Read the explain in paper
     for key in features_error_range_dir:
         for feature in features_error_range_dir[key]:
             max_error = dataset_exo[feature].quantile(0.9)
@@ -157,7 +172,7 @@ def load_dataset_error(exo_path, features, solar_path, solar=True):
 
     dataset_exo = dataset_exo[features_error_list]
 
-    # TODO: change mass of Kepler 10c
+    # TODO: PHYS. change mass of Kepler 10c
     dataset_exo.loc['Kepler-10 c'].mass = 17.2
     dataset_exo.loc['Kepler-10 c'].mass_error = 1.9
 
@@ -177,4 +192,6 @@ def load_dataset_error(exo_path, features, solar_path, solar=True):
     return dataset
 
 
-
+def load_data_rv():
+    # TODO: Implement
+    pass
